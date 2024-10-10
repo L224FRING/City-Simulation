@@ -1,0 +1,77 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(to right, #3a6073, #3a9d9d);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 400px;
+}
+
+h1 {
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+
+.options {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  background-position: center;
+  margin: 10px 0;
+  height: 60px;
+  width: 100%;
+  border: 2px solid transparent;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: border 0.3s;
+  position: relative;
+}
+
+.option input {
+  display: none; /* Hide the radio button */
+}
+
+.option-label {
+  font-size: 18px;
+  color: white;
+  position: absolute;
+}
+
+.option.active {
+  border: 4px solid #2980b9; /* Outline when active */
+}
+
+.option:nth-child(1) {
+  background-image: url('https://cdn.mos.cms.futurecdn.net/xaycNDmeyxpHDrPqU6LmaD.jpg'); /* Replace with your image URL */
+}
+
+.option:nth-child(2) {
+  background-image: url('https://cdn.britannica.com/09/152309-050-5E0B2A42/Sahara-Morocco.jpg'); /* Replace with your image URL */
+}
+
+.option:nth-child(3) {
+  background-image: url('https://worldlandforms.com/images/plain.jpg'); /* Replace with your image URL */
+}
