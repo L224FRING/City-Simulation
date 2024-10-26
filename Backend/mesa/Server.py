@@ -34,5 +34,5 @@ model_params = {
 server = ModularServer(CityModel, [grid], "City Simulation", model_params)
 
 # Launch the server
-server.port = 8521  # The default port is 8521
+server.port = 8521 
 server.launch()
