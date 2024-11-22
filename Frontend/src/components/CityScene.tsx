@@ -1,7 +1,7 @@
 // CityScene.tsx
 import React from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, useGLTF } from "@react-three/drei"; // Import OrbitControls from drei
+import { OrbitControls } from "@react-three/drei"; // Import OrbitControls from drei
 
 // Function to set color based on agent type
 const getAgentColor = (type: string) => {
@@ -37,13 +37,6 @@ const rand = () => {
     c = 2;
   }
   return rande;
-};
-
-const CitizenModel: React.FC<{ position: [number, number, number] }> = ({
-  position,
-}) => {
-  const { scene } = useGLTF("assets/car.glb"); // Replace with the actual path to your model
-  return <primitive object={scene} position={position} scale={0.5} />;
 };
 
 const CityScene: React.FC<CitySceneProps> = ({ agents }) => {
