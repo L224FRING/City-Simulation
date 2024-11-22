@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { Canvas } from "@react-three/fiber";
+// CitySimulation.tsx
+import { useState, useEffect } from "react";
+import CityScene from "./components/CityScene";
 
 const CitySimulation = () => {
   const [agents, setAgents] = useState<any[]>([]);
@@ -23,43 +24,25 @@ const CitySimulation = () => {
   }, []);
 
   return (
-    <div>
-      <button onClick={stepSimulation}>Step Simulation</button>
-      <Canvas camera={{ position: [10, 15, 10], fov: 90 }}>
-        {/* Lighting */}
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[10, 10, 5]} intensity={1} />
-
-        {/* Grid floor (optional) */}
-
-        {/* 3D objects */}
-        {agents.map((agent) => (
-          <mesh key={agent.id} position={[agent.pos[0], 0, agent.pos[1]]}>
-            {agent.type === "CitizenAgent" && (
-              <sphereGeometry args={[0.5, 32, 32]} />
-            )}
-            {agent.type === "RoadAgent" && <boxGeometry args={[1, 0.1, 1]} />}
-            {agent.type === "BuildingAgent" && <boxGeometry args={[1, 2, 1]} />}
-            <meshStandardMaterial color={getAgentColor(agent.type)} />
-          </mesh>
-        ))}
-      </Canvas>
+    <div
+      style={{
+        height: "100vh",
+        width: "100vw",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <button
+        onClick={stepSimulation}
+        style={{ position: "absolute", zIndex: 1, top: 20, left: 20 }}
+      >
+        Step Simulation
+      </button>
+      <div style={{ flex: 1 }}>
+        <CityScene agents={agents} />
+      </div>
     </div>
   );
-};
-
-// Assign colors based on agent type
-const getAgentColor = (type: string) => {
-  switch (type) {
-    case "CitizenAgent":
-      return "blue";
-    case "RoadAgent":
-      return "gray";
-    case "BuildingAgent":
-      return "brown";
-    default:
-      return "white";
-  }
 };
 
 export default CitySimulation;

@@ -1,47 +1,63 @@
-from mesa import Agent, Model
+from mesa import Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
-from Agents import CitizenAgent,RoadAgent,BuildingAgent
+from Agents import RoadAgent,BuildingAgent,HouseAgent
+from mesa.datacollection import DataCollector
 
 class CityModel(Model):
-    """A model with some number of agents."""
-    def __init__(self, N, width, height):
-        self.num_agents = N
-        self.grid = MultiGrid(width, height, True)
+    def __init__(self, gridSize=20, values={}):
+        super().__init__()
+        self.grid_size = gridSize
+        self.grid = MultiGrid(gridSize, gridSize, torus=False)
         self.schedule = RandomActivation(self)
+        self.values=values
 
-        # Check if there are enough spaces on the grid
-        if N > width * height:
-            raise ValueError("Number of agents exceeds grid capacity")
+        # Initialize grid with given values
+        self.initialize_grid(values)
 
-        # Unique positioning of agents
-        positions = set()
-        while len(positions) < N:
-            x = self.random.randrange(self.grid.width)
-            y = self.random.randrange(self.grid.height)
-            positions.add((x, y))
-
-        # Place Citizen agents
-        for i, pos in enumerate(positions):
-            citizen = CitizenAgent(i, self)
-            self.grid.place_agent(citizen, pos)
-            self.schedule.add(citizen)
-
-        # Place Road agents (example: placing 5 roads)
-        for i in range(5):
-            road_pos = (self.random.randrange(self.grid.width), self.random.randrange(self.grid.height))
-            road = RoadAgent(i + N, self, road_pos)
-            self.grid.place_agent(road, road_pos)
-            self.schedule.add(road)
-
-        # Place Building agents (example: placing 5 buildings)
-        for i in range(5):
-            building_pos = (self.random.randrange(self.grid.width), self.random.randrange(self.grid.height))
-            building = BuildingAgent(i + N + 5, self, building_pos)
-            self.grid.place_agent(building, building_pos)
-            self.schedule.add(building)
-
-    def step(self):
-        """Advance the model by one step."""
-        self.schedule.step()
+        self.datacollector = DataCollector(
+            agent_reporters={"Agent Type": "type"}  # Example: collect agent types
+        )
+        
+        
+    def get_agents(self):
+        agents = self.schedule.agents
+        return [
+            {
+                "id": agent.unique_id,
+                "type": type(agent).__name__,
+                "pos": agent.pos
+            }
+            for agent in agents
+        ]
     
+    def step(self):
+        self.datacollector.collect(self)
+        self.schedule.step()
+        
+    
+    def initialize_grid(self, values):
+        """Helper function to initialize the grid with agents."""
+        self.grid = MultiGrid(self.grid_size, self.grid_size, torus=False)
+        for path, agentType in values.items():
+            x, y = map(int, path.split('-'))
+            if agentType == "red":
+                agent = BuildingAgent(self.next_id(), self,[x,y])
+            elif agentType == "gray":
+                agent = RoadAgent(self.next_id(), self,[x,y])
+            elif agentType == "green":
+                agent = HouseAgent(self.next_id(), self,[x,y])
+            else:
+                continue  # Skip empty or "white" cells
+            
+            self.grid.place_agent(agent, (x, y))
+            self.schedule.add(agent)
+
+    def reset_model(self, grid_size, values):
+        """Reset the model and reinitialize with new data."""
+        self.grid_size = grid_size
+        self.initialize_grid(values)
+        
+    def get_agents(self):
+        agents=self.schedule.agents
+        return [{"id":agent.unique_id,"type":type(agent).__name__,"pos":agent.pos} for agent in agents]

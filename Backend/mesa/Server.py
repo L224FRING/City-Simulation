@@ -1,38 +1,37 @@
-from mesa.visualization.modules import CanvasGrid
 from mesa.visualization.ModularVisualization import ModularServer
-from mesa.visualization.UserParam import Slider
+from mesa.visualization.modules import CanvasGrid, ChartModule
 from Models import CityModel
-from Agents import CitizenAgent,RoadAgent,BuildingAgent
+from Agents import BuildingAgent, RoadAgent, HouseAgent,CitizenAgent
+import requests
 
 def agent_portrayal(agent):
-    """Define how to display agents on the grid."""
-    if isinstance(agent, CitizenAgent):
-        portrayal = {"Shape": "circle", "Filled": "true", "r": 0.5}
-        portrayal["Color"] = "blue"
-        portrayal["Layer"] = 1
+    """Define how agents are portrayed in the visualization."""
+    if isinstance(agent, BuildingAgent):
+        return {"Shape": "rect", "Color": "red", "Filled": "true", "Layer": 1, "w": 1, "h": 1}
     elif isinstance(agent, RoadAgent):
-        portrayal = {"Shape": "rect", "Filled": "true", "w": 1, "h": 0.2}
-        portrayal["Color"] = "gray"
-        portrayal["Layer"] = 0  # Roads below citizens
-    elif isinstance(agent, BuildingAgent):
-        portrayal = {"Shape": "rect", "Filled": "true", "w": 0.8, "h": 0.8}
-        portrayal["Color"] = "brown"
-        portrayal["Layer"] = 2  # Buildings above citizens
-    return portrayal
+        return {"Shape": "rect", "Color": "gray", "Filled": "true", "Layer": 0, "w": 1, "h": 1}
+    elif isinstance(agent, HouseAgent):
+        return {"Shape": "rect", "Color": "green", "Filled": "true", "Layer": 2, "w": 1, "h": 1}
+    elif isinstance(agent, CitizenAgent):
+        return {"Shape": "circle", "Color": "blue", "Filled": "true", "Layer": 3, "r": 0.5}
 
-# Set up a grid visualization (CanvasGrid)
-grid = CanvasGrid(agent_portrayal, 30, 30, 500, 500)
 
-# Use Slider to set the number of agents
-model_params = {
-    "N": Slider("Number of agents", 10, 2, 100, 1),
-    "width": 30,
-    "height": 30
-}
+url='http://localhost:5000/values'
 
-# Create the Mesa ModularServer
-server = ModularServer(CityModel, [grid], "City Simulation", model_params)
 
-# Launch the server
-server.port = 8521 
-server.launch()
+response = requests.get(url)
+data=response.json()
+print(data)
+
+grid=CanvasGrid(agent_portrayal, data['gridSize'], data['gridSize'], 500, 500)
+
+server=ModularServer(
+    CityModel,
+    [grid],
+    'City Simulation',
+    {"gridSize": data['gridSize'], "values": data['values']}
+)
+
+if __name__ == "__main__":
+    server.port = 8521  
+    server.launch()
