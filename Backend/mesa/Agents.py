@@ -69,18 +69,22 @@ class BuildingAgent(Agent):
     def __init__(self,unique_id,model,pos):
         super().__init__(unique_id,model)
         self.pos=pos
+        self.direction=None
     
 class HouseAgent(Agent):
     def __init__(self, unique_id, model,pos):
         super().__init__(unique_id, model)  # Store the position of the building
         self.pos=pos
         self.spawned=False
+        self.direction=None
     def step(self):
+        print(self.spawned)
         if not self.spawned:
             neighborhood=self.model.grid.get_neighborhood(self.pos, moore=True, include_center=False)
             for neighbor in neighborhood:
                  cell_contents=self.model.grid.get_cell_list_contents(neighbor)
                  if any(isinstance(agent, RoadAgent) for agent in cell_contents):
+                     print("spawned")
                      citizen=CitizenAgent(self.model.next_id(),self.model,neighbor)
                      self.model.grid.place_agent(citizen,neighbor)
                      self.model.schedule.add(citizen)
@@ -89,9 +93,9 @@ class HouseAgent(Agent):
     
 
 class RoadAgent(Agent):
-    """An agent representing a road in the city."""
     def __init__(self, unique_id, model,pos):
         super().__init__(unique_id, model)
         self.pos=pos
+        self.direction=None
     def step(self):
         pass

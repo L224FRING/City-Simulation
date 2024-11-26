@@ -28,7 +28,6 @@ def receive_grid_data():
         initialize_model(data['gridSize'], data['selectedPaths'])
         
         # Reset the  model with new data (now city_model will not be None)
-        city_model.reset_model(data['gridSize'], data['selectedPaths'])
         return jsonify({"status": "success", "message": "CityModel updated"}), 200
     except Exception as e:
         print("Error:", e)
@@ -46,6 +45,7 @@ def get_agents():
         print("Error:", e)
         return jsonify({"status": "error", "message": str(e)}), 400
     
+
 @app.route('/values',methods=['GET'])
 def get_values():
     try:
@@ -68,7 +68,13 @@ def step_model():
     else:
         return jsonify({"status": "error", "message": "CityModel not initialized"}), 400
 
-# Visualization: Agent portrayal function
+@app.route('/reset', methods=['POST'])  
+def reset_model(): 
+    if city_model is not None:
+        city_model.reset_model(city_model.grid_size, city_model.values)  # Reset the simulation
+        return jsonify({"status": "success", "message": "Model reset"}), 200
+    else:
+        return jsonify({"status": "error", "message": "CityModel not initialized"}), 400
 
 
 if __name__ == "__main__":

@@ -9,13 +9,18 @@ const CitySimulation = () => {
   const fetchAgents = async () => {
     const response = await fetch("http://localhost:5000/agents");
     const data = await response.json();
-    setAgents(data);
+    setAgents(data["agents"]);
   };
 
   // Call the step function on the Flask server to advance the simulation
   const stepSimulation = async () => {
     await fetch("http://localhost:5000/step", { method: "POST" });
     fetchAgents(); // Fetch updated agent data after stepping
+  };
+
+  const resetSimulation = async () => {
+    await fetch("http://localhost:5000/reset", { method: "POST" });
+    fetchAgents();
   };
 
   // Fetch agents data on initial render
@@ -37,6 +42,12 @@ const CitySimulation = () => {
         style={{ position: "absolute", zIndex: 1, top: 20, left: 20 }}
       >
         Step Simulation
+      </button>
+      <button
+        onClick={resetSimulation}
+        style={{ position: "absolute", zIndex: 1, top: 60, left: 20 }}
+      >
+        Reset Simulation
       </button>
       <div style={{ flex: 1 }}>
         <CityScene agents={agents} />

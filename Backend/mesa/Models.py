@@ -60,4 +60,4 @@ class CityModel(Model):
         
     def get_agents(self):
         agents=self.schedule.agents
-        return [{"id":agent.unique_id,"type":type(agent).__name__,"pos":agent.pos} for agent in agents]
+        return [{"id":agent.unique_id,"type":type(agent).__name__,"pos":agent.pos,"direction":agent.direction} for agent in agents]

@@ -1,42 +1,26 @@
 // CityScene.tsx
 import React from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei"; // Import OrbitControls from drei
+import { OrbitControls } from "@react-three/drei";
+import { animated, useSpring } from "@react-spring/three";
+// Import OrbitControls from drei
 
 // Function to set color based on agent type
-const getAgentColor = (type: string) => {
-  switch (type) {
-    case "CitizenAgent":
-      return "blue";
-    case "RoadAgent":
-      return "gray";
-    case "BuildingAgent":
-      return "brown";
-    default:
-      return "white";
-  }
-};
 
 interface Agent {
   id: number;
   type: string;
   pos: [number, number];
+  direction: [number, number];
 }
 
 interface CitySceneProps {
   agents: Agent[];
 }
 
-let rande = Math.random();
-let c = 2;
-const rand = () => {
-  if (c == 2) {
-    c = 1;
-    rande = Math.random();
-  } else {
-    c = 2;
-  }
-  return rande;
+const disalignment = (p: [number, number], d: [number, number]) => {
+  if (d == null) return [0, 0];
+  return [-0.3 * (d[1] - p[1]), 0.3 * (d[0] - p[0])];
 };
 
 const CityScene: React.FC<CitySceneProps> = ({ agents }) => {
@@ -51,28 +35,46 @@ const CityScene: React.FC<CitySceneProps> = ({ agents }) => {
       {/* OrbitControls allows users to move the camera around the scene */}
       <OrbitControls enablePan={true} enableZoom={true} enableRotate={true} />
 
-      {agents.map((agent) =>
-        agent.type === "BuildingAgent" ? (
-          <mesh
-            key={agent.id}
-            position={[agent.pos[0], (rand() * 5 + 5) / 2, agent.pos[1]]}
-          >
-            <boxGeometry args={[1, rand() * 5 + 5, 1]} />
-            <meshStandardMaterial color="brown" />
-          </mesh>
-        ) : agent.type === "RoadAgent" ? (
-          <mesh key={agent.id} position={[agent.pos[0], 0, agent.pos[1]]}>
-            <boxGeometry args={[1, 0.1, 1]} />
-            <meshStandardMaterial color="gray" />
-          </mesh>
-        ) : (
-          <mesh key={agent.id} position={[agent.pos[0], 0, agent.pos[1]]}>
-            <sphereGeometry args={[0.5, 32, 32]} />
-            <meshStandardMaterial color={getAgentColor(agent.type)} />
-          </mesh>
-        )
-      )}
+      {agents.map((agent) => (
+        <AgentMesh key={agent.id} agent={agent} />
+      ))}
     </Canvas>
+  );
+};
+
+const AgentMesh: React.FC<{ agent: Agent }> = ({ agent }) => {
+  const { pos } = agent;
+
+  // Use spring to smoothly transition positions
+  const { position } = useSpring({
+    position: [pos[0], 0, pos[1]],
+    config: { mass: 1, tension: 200, friction: 30 },
+  });
+
+  return (
+    <animated.mesh position={position.to((x, y, z) => [x, y, z])}>
+      {agent.type === "BuildingAgent" ? (
+        <>
+          <boxGeometry args={[1, 2, 1]} />
+          <meshStandardMaterial color="brown" />
+        </>
+      ) : agent.type === "HouseAgent" ? (
+        <>
+          <boxGeometry args={[1, 2, 1]} />
+          <meshStandardMaterial color="green" />
+        </>
+      ) : agent.type === "RoadAgent" ? (
+        <>
+          <boxGeometry args={[1, 0.1, 1]} />
+          <meshStandardMaterial color="gray" />
+        </>
+      ) : (
+        <>
+          <sphereGeometry args={[0.1, 32, 32]} />
+          <meshStandardMaterial color="blue" />
+        </>
+      )}
+    </animated.mesh>
   );
 };
 
