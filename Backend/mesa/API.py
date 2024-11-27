@@ -33,6 +33,8 @@ def receive_grid_data():
         print("Error:", e)
         return jsonify({"status": "error", "message": str(e)}), 400
 
+
+
 @app.route('/agents', methods=['GET'])
 def get_agents():
     try:

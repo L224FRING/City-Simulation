@@ -55,9 +55,16 @@ class CityModel(Model):
 
     def reset_model(self, grid_size, values):
         """Reset the model and reinitialize with new data."""
+        self.schedule=RandomActivation(self)
+        self.grid = MultiGrid(grid_size, grid_size, torus=False)
         self.grid_size = grid_size
         self.initialize_grid(values)
         
     def get_agents(self):
         agents=self.schedule.agents
         return [{"id":agent.unique_id,"type":type(agent).__name__,"pos":agent.pos,"direction":agent.direction} for agent in agents]
+
+    def getPath(self,id):
+        for agent in self.schedule.agents:
+            if agent.unique_id==id:
+                return agent.path
