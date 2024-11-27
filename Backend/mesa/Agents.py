@@ -3,7 +3,7 @@ from mesa import Agent, Model
 from queue import Queue
 import heapq
 class CitizenAgent(Agent):
-    def __init__(self, unique_id, model,pos):
+    def __init__(self, unique_id, model,pos,home):
         super().__init__(unique_id, model)
         self.pos=pos
         self.target_building=None
@@ -11,13 +11,15 @@ class CitizenAgent(Agent):
         self.direction=None
         self.mode="day"
         self.count=0
+        self.work_building= self.random.choice([agent for agent in self.model.agents if isinstance(agent, BuildingAgent)])
+        self.home_building=home
         
     def step(self):
         if not self.path:
             if self.mode=="day":
-                buildings=[agent for agent in self.model.agents if isinstance(agent, BuildingAgent)]
+               self.target_building=self.work_building
             elif self.mode=="night":
-                buildings=[agent for agent in self.model.agents if isinstance(agent, HouseAgent)]
+                self.target_building = self.home_building
             elif self.mode=="waitn":
                 self.count+=1
                 if self.count==4:
@@ -30,9 +32,8 @@ class CitizenAgent(Agent):
                     self.mode="day"
                     self.count=0
                 return
-            if buildings:
-                self.target_building=self.random.choice(buildings)
-                self.path=self.find_A_star_path_to(self.target_building.pos)
+            if self.target_building:
+                self.path = self.find_A_star_path_to(self.target_building.pos)
             self.path.pop(0)
         if self.path:
             if True:
@@ -149,7 +150,7 @@ class HouseAgent(Agent):
             for neighbor in neighborhood:
                  cell_contents=self.model.grid.get_cell_list_contents(neighbor)
                  if any(isinstance(agent, RoadAgent) for agent in cell_contents):
-                     citizen=CitizenAgent(self.model.next_id(),self.model,neighbor)
+                     citizen=CitizenAgent(self.model.next_id(),self.model,neighbor,self)
                      self.model.grid.place_agent(citizen,neighbor)
                      self.model.schedule.add(citizen)
                      self.spawned=True
