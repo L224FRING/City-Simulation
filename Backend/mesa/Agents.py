@@ -11,7 +11,7 @@ class CitizenAgent(Agent):
         self.direction=None
         self.mode="day"
         self.count=0
-        self.work_building= self.random.choice([agent for agent in self.model.agents if isinstance(agent, BuildingAgent)])
+        self.work_building= random.choice([agent for agent in self.model.agents if isinstance(agent, BuildingAgent)])
         self.home_building=home
         
     def step(self):
