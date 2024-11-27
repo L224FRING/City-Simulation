@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "./grid.css";
-import { redirect } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Grid: React.FC = () => {
   const [gridSize, setGridSize] = useState<number>(10);
@@ -9,7 +9,7 @@ const Grid: React.FC = () => {
     {}
   );
   const [selectedColor, setSelectedColor] = useState<string>("gray");
-
+  const navigate = useNavigate();
   const sendGridData = async () => {
     const payload = {
       gridSize,
@@ -20,7 +20,7 @@ const Grid: React.FC = () => {
       const response = await axios.post("http://localhost:5000/input", payload);
       console.log("Data sent successfully:", response.data);
       alert("Grid data sent to the server!");
-      redirect("/three");
+      navigate("/three");
     } catch (error) {
       console.error("Error sending grid data:", error);
       alert("Failed to send grid data.");
