@@ -50,28 +50,36 @@ const CityScene: React.FC<CitySceneProps> = ({ agents }) => {
         <meshStandardMaterial color="white" />
       </mesh>
       {agents.map((agent) => (
-        <AgentMesh key={agent.id} agent={agent} />
+        <AgentMesh key={agent.id} agent={agent} models={{ vechile, building, home }} />
       ))}
     </Canvas>
   );
 };
 
-// Load and render a specific model
-
-const AgentMesh: React.FC<{ agent: Agent }> = ({ agent }) => {
-  var { pos } = agent;
+const AgentMesh: React.FC<{ agent: Agent; models: any }> = ({ agent, models }) => {
+  let { pos } = agent;
   let h = 0;
   const d = disalignment(pos, agent.direction);
+
   if (agent.type === "CitizenAgent") {
     h = 0.1;
     pos = [pos[0] + d[0], pos[1] + d[1]];
   }
+
   let rotateY = 0;
   if (agent.direction) {
-    rotateY = Math.atan2(
-      agent.direction[0] + d[0] - pos[0],
-      agent.direction[1] + d[1] - pos[1]
-    );
+      if (agent.type=="CitizenAgent"){
+          rotateY = Math.atan2(
+              agent.direction[0] + d[0] - pos[0],
+              agent.direction[1] + d[1] - pos[1]
+          );
+      } else{
+          rotateY = Math.atan2(
+              agent.direction[0]-pos[0],
+              agent.direction[1]-pos[1]
+          )
+    };
+
   }
 
   // Use spring to smoothly transition positions
@@ -83,69 +91,31 @@ const AgentMesh: React.FC<{ agent: Agent }> = ({ agent }) => {
   return (
     <animated.mesh position={position.to((x, y, z) => [x, y, z])}>
       {agent.type === "BuildingAgent" ? (
-        <BModel />
+        <Model model={models.building} scale={[0.05, 0.05, 0.05]} rotation={[0, rotateY, 0]}/>
       ) : agent.type === "HouseAgent" ? (
-        <HModel />
+        <Model model={models.home} scale={[0.15, 0.15, 0.15]} rotation={[0, rotateY, 0]}   />
       ) : agent.type === "RoadAgent" ? (
         <>
           <boxGeometry args={[1, 0.1, 1]} />
           <meshStandardMaterial color="gray" />
         </>
       ) : agent.type === "CitizenAgent" ? (
-        <Model rotateY={rotateY} />
+        <Model model={models.vechile} scale={[0.1, 0.1, 0.1]} rotation={[0, rotateY, 0]} />
       ) : null}
     </animated.mesh>
   );
 };
 
-const HModel: React.FC<{}> = () => {
-  try {
-    const home = useGLTF("/models/home.glb");
-    return (
-      <primitive
-        object={home.scene.clone()}
-        scale={[0.15, 0.15, 0.15]}
-        rotation={[0, 0, 0]}
-      />
-    );
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
+const Model: React.FC<{ model: any; scale?: [number, number, number]; rotation?: [number, number, number] }> = ({
+  model,
+  scale = [1, 1, 1],
+  rotation = [0, 0, 0],
+}) => {
+  return <primitive object={model.scene.clone()} scale={scale} rotation={rotation} />;
 };
 
-const BModel: React.FC<{}> = () => {
-  try {
-    const building = useGLTF("/models/building.glb");
-    return (
-      <primitive
-        object={building.scene.clone()}
-        scale={[0.05, 0.05, 0.05]}
-        rotation={[0, 0, 0]}
-      />
-    );
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
-};
 
-const Model: React.FC<{ rotateY: number }> = ({ rotateY }) => {
-  try {
-    const r = [0, rotateY, 0];
-    const vehicle = useGLTF("/models/car.glb");
-    return (
-      <primitive
-        object={vehicle.scene.clone()}
-        scale={[0.1, 0.1, 0.1]}
-        rotation={r}
-      />
-    );
-  } catch (error) {
-    console.log();
-    console.log(error);
-    return null;
-  }
-};
+
+// Load and render a specific model
 
 export default CityScene;

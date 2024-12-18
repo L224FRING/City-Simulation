@@ -136,6 +136,15 @@ class BuildingAgent(Agent):
         super().__init__(unique_id,model)
         self.pos=pos
         self.direction=None
+        self.moved=False
+    def step(self):
+        if not self.moved:
+            neighborhood=self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
+            for neighbor in neighborhood:
+                 cell_contents=self.model.grid.get_cell_list_contents(neighbor)
+                 if any(isinstance(agent, RoadAgent) for agent in cell_contents):
+                     self.direction=neighbor
+                     self.moved=True
     
 class HouseAgent(Agent):
     def __init__(self, unique_id, model,pos):
@@ -150,6 +159,7 @@ class HouseAgent(Agent):
             for neighbor in neighborhood:
                  cell_contents=self.model.grid.get_cell_list_contents(neighbor)
                  if any(isinstance(agent, RoadAgent) for agent in cell_contents):
+                     self.direction=neighbor
                      citizen=CitizenAgent(self.model.next_id(),self.model,neighbor,self)
                      self.model.grid.place_agent(citizen,neighbor)
                      self.model.schedule.add(citizen)
