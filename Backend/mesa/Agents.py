@@ -87,7 +87,7 @@ class CitizenAgent(Agent):
 
          closed_list.add(current)
 
-         for neighbor in self.model.grid.get_neighbors(current, False):
+         for neighbor in self.model.grid.get_neighbors(current, True):
              neighbor=neighbor.pos
              if neighbor in closed_list:
                  continue

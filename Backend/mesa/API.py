@@ -78,6 +78,16 @@ def reset_model():
     else:
         return jsonify({"status": "error", "message": "CityModel not initialized"}), 400
 
+@app.route('/path', methods=['POST'])
+def path():
+    try:
+        data=request.json
+        if data:
+           return jsonify({"path": city_model.getPath(data["id"])})
+        return jsonify({"status": "error", "message": "no data"}), 400
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 400
+
 
 if __name__ == "__main__":
     app.run(port=5000)
